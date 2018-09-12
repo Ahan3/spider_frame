@@ -26,7 +26,7 @@ class YoudeyiPipeline(object):
 class MongodbPipeline(object):
     def open_spider(self,spider):
         client = MongoClient('localhost',27017)
-        self.db = client['stu']['rundb']
+        self.db = client['youdeyi']['askDocker39']
 
     def process_item(self,item,spider):
         if spider.name == '39':

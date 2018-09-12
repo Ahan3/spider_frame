@@ -4,10 +4,10 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-
+from scrapy.http import Response
 from scrapy import signals
-
-
+from fake_useragent import UserAgent
+import redis
 class YoudeyiSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
@@ -101,3 +101,50 @@ class YoudeyiDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class UserAgentMiddleware(object):
+
+    def get_random_ua(self):
+        ua = UserAgent()
+        agent = ua.random
+        return agent
+
+    def process_request(self,request,spider):
+        # Called with the response returned from the downloader.
+
+        # Must either;
+        # - return a Response object
+        # - return a Request object
+        # - or raise IgnoreRequest
+
+        request.headers['User-Agent'] = self.get_random_ua()
+
+
+    # def process_response(self, request, response, spider):
+    #     # Called with the response returned from the downloader.
+    #
+    #     # Must either;
+    #     # - return a Response object
+    #     # - return a Request object
+    #     # - or raise IgnoreRequest
+    #
+    #     if response.status != 200:
+    #         request.headers['User-Agent'] = self.get_random_ua()
+    #         return request
+    #     return response
+
+class IP_Middleware(object):
+    def __init__(self):
+        self.conn = redis.StrictRedis(host='127.0.0.1', port=6379,db=3)
+
+    def process_request(self,request,spider):
+        # Called with the response returned from the downloader.
+
+        # Must either;
+        # - return a Response object
+        # - return a Request object
+        # - or raise IgnoreRequest
+        ip = self.conn.srandmember('ip_pool').decode()
+        ip = eval(ip)['HTTP']
+        request.meta['proxy'] = 'http://' + ip
+

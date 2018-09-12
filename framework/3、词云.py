@@ -1,36 +1,36 @@
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud,ImageColorGenerator,STOPWORDS
 import jieba
-text="李小璐给王思聪买了微博热搜"
-# result=jieba.cut(text)
-# print("切分结果:  "+",".join(result))
+import numpy as np
+from PIL import Image
 
-# jieba.suggest_freq(('微博'),True)
-# jieba.suggest_freq(('热搜'),True)
-# result = jieba.cut(text)
-# print(result)
-# print(','.join(result))
+#读入背景图片
+# abel_mask = np.array(Image.open("20170308150634281.jpg"))
 
-with open("../info.csv") as f:
-    text = f.read()
-stopwords = {}.fromkeys(text.split('\n'))
+#将数据库中的redis转换成
+#读取要生成词云的文件
+text_from_file_with_apath = open('info.csv').read()
 
-#将制定词添加到词云中
-# jieba.load_userdict('')
-segs = jieba.cut(text)
-mytext_list = []
+#通过jieba分词进行分词并通过空格分隔
+wordlist_after_jieba = jieba.cut(text_from_file_with_apath, cut_all = True)
+wl_space_split = " ".join(wordlist_after_jieba)
+#my_wordcloud = WordCloud().generate(wl_space_split) 默认构造函数
+my_wordcloud = WordCloud(
+            background_color='white',    # 设置背景颜色
+            # mask = abel_mask,        # 设置背景图片
+            max_words = 200,            # 设置最大现实的字数
+            stopwords = STOPWORDS,        # 设置停用词
+            font_path = './simkai.ttf',# 设置字体格式，如不设置显示不了中文
+            max_font_size = 50,            # 设置字体最大值
+            random_state = 30,            # 设置有多少种随机生成状态，即有多少种配色方案
+                scale=20
+                ).generate(wl_space_split)
 
-for seg in segs:
-    if seg not in stopwords and seg!=" " and len(seg)!=1:
-        mytext_list.append(seg.replace(" ",""))
-cloud_text=",".join(mytext_list)
+# 根据图片生成词云颜色
+# image_colors = ImageColorGenerator(abel_mask)
+#my_wordcloud.recolor(color_func=image_colors)
 
-from wordcloud import WordCloud
-wc = WordCloud(
-    background_color="white", #背景颜色
-    max_words=200, #显示最大词数
-    font_path="./font/wb.ttf",  #使用字体
-    min_font_size=15,
-    max_font_size=50,
-    width=400  #图幅宽度
-    )
-wc.generate(cloud_text)
-wc.to_file("pic.png")
+# 以下代码显示图片
+plt.imshow(my_wordcloud)
+plt.axis("off")
+plt.show()

@@ -45,7 +45,7 @@ class XunyiSpider(RedisSpider):
         else:
             item['年龄'] = None
             item['性别'] = None
-        item['关键字'] = response.xpath('//p[@class="txt_label"]/span/a/text()').extract_first()
+        item['关键字'] = response.xpath('//p[@class="txt_label"]/span/a/text()').extract()
         item['科室'] = response.xpath('//*[@id="sub"]/span[3]/a/text()').extract_first()
         item['疾病标签'] = response.xpath('//*[@id="sub"]/span[4]/a/text()').extract_first()
         yield item
